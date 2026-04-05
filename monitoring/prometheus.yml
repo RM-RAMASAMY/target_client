@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "target_client"
+    static_configs:
+      - targets: ["target_client:8080"]
+    metrics_path: /metrics

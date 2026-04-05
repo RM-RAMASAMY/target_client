@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  target_client:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - FLASK_DEBUG=0
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=1h"
+    depends_on:
+      - target_client
+    restart: unless-stopped
